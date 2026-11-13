@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Мапа Тривог</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main>
+<section id="t-map" class="tab on">
+  <div class="top"><h1>Мапа Тривог</h1><span class="chip glass" id="mode" data-m="demo"><i></i><span id="mt">Запуск…</span></span></div>
+  <div id="stage" class="glass">
+    <canvas id="cv" aria-label="Карта України з рівнями небезпеки"></canvas>
+    <div class="hud" id="tl"><small>Індекс небезпеки</small><b id="idx">0</b><div id="bar"><i></i></div></div>
+    <div class="hud" id="tr"><small>Областей у тривозі</small><b id="cnt">0</b>
+      <svg id="spark" viewBox="0 0 110 30" preserveAspectRatio="none"><polyline id="sp" fill="none" stroke="#ff453a" stroke-width="1.6" points=""/></svg></div>
+    <div class="leg"><span style="--c:var(--l0)">Спокійно</span><span style="--c:var(--l1)">Увага</span><span style="--c:var(--l2)">Тривога</span><span style="--c:var(--l3)">Критично</span></div>
+  </div>
+  <div class="glass card">
+    <div class="k" id="rn"></div><div id="lv"></div><div id="adv"></div>
+    <div class="pick"><label for="sel" class="k">Мій регіон</label><select id="sel"></select></div>
+  </div>
+  <div class="warn" id="warn" hidden></div>
+</section>
+
+<section id="t-log" class="tab"><h1>Журнал</h1><ul id="log" class="list"></ul></section>
+
+<section id="t-set" class="tab"><h1>Налаштування</h1>
+  <div class="list" id="lockb" hidden><button class="row" id="unl"><span>Налаштування захищені PIN-кодом</span><span class="val" style="color:var(--blue)">Розблокувати</span></button></div>
+  <div class="grp">
+    <h3>Дані</h3>
+    <div class="list">
+      <label class="row"><span>Токен</span><input id="tk" type="password" autocomplete="off" spellcheck="false" placeholder="Вставте токен"></label>
+      <div class="row"><span>Оновлення</span><div class="seg" id="iv"><button data-v="15">15 с</button><button data-v="30" class="on">30 с</button><button data-v="60">1 хв</button></div></div>
+      <div class="row"><span>Стан</span><span class="val" id="st"></span></div>
+    </div>
+    <p class="foot">Токен видають на alerts.in.ua/api-request. Він зберігається зашифрованим засобами системи й не потрапляє у вікно застосунку.</p>
+    <h3>Система</h3>
+    <div class="list"><label class="row"><span>Запускати разом із Windows</span><input class="sw" id="as" type="checkbox"></label></div>
+    <h3>Захист</h3>
+    <div class="list">
+      <div class="row"><span>PIN-код налаштувань</span><span class="val" id="pinst"></span></div>
+      <button class="row" id="pinb"><span id="pinl">Задати PIN</span><i class="chev"></i></button>
+      <button class="row red" id="pinr" hidden>Вимкнути PIN</button>
+    </div>
+    <p class="foot">PIN захищає токен і налаштування. Карта й сповіщення працюють без нього. Після п’яти хибних спроб — пауза на хвилину.</p>
+    <div class="actions"><button class="btn" id="sv">Зберегти</button><button class="btn plain red" id="ct">Видалити токен</button></div>
+  </div>
+  <h3>Сигнал</h3>
+  <div class="list"><button class="row" id="tb"><span>Перевірити сповіщення й звук</span><i class="chev"></i></button></div>
+  <p class="foot">Застосунок допоміжний. Тримайте ввімкненими офіційні оповіщення про повітряну тривогу.</p>
+</section>
+</main>
+
+<nav class="tabbar glass" aria-label="Розділи"><button data-t="map" class="on"><svg viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>Карта</button><button data-t="log"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r=".8"/><circle cx="4.5" cy="12" r=".8"/><circle cx="4.5" cy="18" r=".8"/></svg>Журнал</button><button data-t="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Налаштування</button></nav>
+
+<div id="sheet" hidden><div class="glass sh" role="dialog" aria-modal="true">
+  <h2 id="sht"></h2><p id="shp"></p>
+  <input id="shi" type="password" inputmode="numeric" maxlength="8" placeholder="PIN" autocomplete="off">
+  <input id="shn" type="password" inputmode="numeric" maxlength="8" placeholder="Новий PIN" autocomplete="off">
+  <div id="she"></div>
+  <div class="actions"><button class="btn plain" id="shc">Скасувати</button><button class="btn" id="sho">Готово</button></div>
+</div></div>
+<script src="renderer.js"></script>
+</body>
+</html>
